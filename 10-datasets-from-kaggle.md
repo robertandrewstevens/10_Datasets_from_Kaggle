@@ -1,0 +1,299 @@
+10 Datasets from Kaggle You Should Practice On to Improve Your Data
+Science Skills
+================
+Robert A. Stevens
+2022-01-13
+
+<https://towardsdatascience.com/10-datasets-from-kaggle-you-should-practice-on-to-improve-your-data-science-skills-6d671996177>
+
+*Hone your skills by working through these 10 datasets*
+
+by Andrew Lombarti
+
+Kaggle is a website where you can find competitions to solve data
+science problems.
+
+It’s free to join and it gives you the opportunity to practice your
+skills on real-world datasets in various industries.
+
+This post will introduce 10 datasets that are great for practicing your
+skills before heading into an interview or just because they’re
+interesting.
+
+Let’s dive in.
+
+## 1. Titanic Dataset (Beginner)
+
+The Titanic dataset is probably one of the most popular datasets on
+Kaggle. It’s a great dataset to start with because it has a lot of
+Variables (13) and Records (over 1500). This dataset contains
+information about passengers who sailed on the Titanic.
+
+The goal of the dataset is to predict whether or not a passenger
+survived based on their characteristics.
+
+For example, based on the dataset, you can see that married women have a
+higher probability of surviving than single men.
+
+Examples of the variables in the dataset are:
+
+-   Age
+
+-   Sex
+
+-   Married or Single
+
+-   Sailing Class (First, Second, Third)
+
+-   Embarked from (London, Southampton)
+
+-   Passenger Ticket Number
+
+There are plenty of tutorials on how to approach this dataset. If you’re
+looking for a challenge, try predicting the survival rates for different
+embarkation points.
+
+The dataset can be downloaded from here: Titanic Dataset
+
+<https://www.kaggle.com/c/titanic>
+
+## 2. Iris Dataset (Beginner)
+
+This dataset is the most popular binary classification problem. The goal
+of this competition is to predict whether or not an Iris flower belongs
+to one of two species (Iris Setosa, Versicolour).
+
+Some examples are that iris setosas have shorter petals and wider sepals
+than versicolours.
+
+An example prediction might be that if the petal length is greater than
+three centimeters and the sepals are less than six centimeters, then
+it’s more likely that the flower belongs to Iris Setosa.
+
+Examples of the variables in this dataset are:
+
+-   Petal Length
+
+-   Sepals Width
+
+-   Petal Width
+
+There are many tutorials to approach this dataset. One of the most
+popular is called “Using Scikit Learn on the Iris Flower Dataset”. It’s
+a very good tutorial for beginners because it shows you how to use
+scikit learn, which has prebuilt functions that allows you to easily
+train models.
+
+The dataset can be downloaded from here: Iris Dataset
+
+<https://www.kaggle.com/uciml/iris>
+
+## 3. Train Dataset (Beginner)
+
+The Train dataset is another popular dataset on Kaggle. This dataset
+contains information about passengers who traveled on the Amtrak train
+between Boston and Washington D.C.
+
+The goal of this dataset is to predict whether or not a passenger will
+get off at a certain stop.
+
+For example, based on the dataset, you can see that passengers who are
+getting off at Baltimore have a higher probability of getting off than
+passengers who are getting off at Philadelphia.
+
+Examples of the variables in the dataset are:
+
+-   Age
+
+-   Track type (Highway, Freight)
+
+-   If it’s a weekend or holiday
+
+There are various ways to predict whether someone will get off at a
+certain stop based on these variables.
+
+The dataset can be downloaded from here: Train Dataset
+
+<https://www.kaggle.com/c/train-occupancy-prediction/data>
+
+## 4. Boston Housing Dataset (Beginner)
+
+The Boston Housing dataset is another popular dataset on Kaggle. This
+dataset contains information about housing in the city of Boston. It has
+over 200,000 records and 18 variables.
+
+The goal of this dataset is to predict whether or not a house price is
+expensive. The dataset has three different classes (Expensive, Normal,
+and Cheap).
+
+You can see examples of features like:
+
+-   Number of bedrooms
+
+-   Number of bathrooms
+
+-   Average number of rooms
+
+If you’re interested in the data science field, this dataset is a great
+one to try. It’s not too difficult while still being very interesting.
+
+The dataset can be downloaded from here: Boston Housing Dataset
+
+<https://www.kaggle.com/c/boston-housing>
+
+## 5. Alcohol and Drug Relation (Intermediate)
+
+The Alcohol and Drug Relation Dataset is a great dataset to practice
+your data visualization skills. It contains information about drug
+interactions between different drugs.
+
+The goal of the dataset is to predict if two drugs will interact with
+each other, based on their chemical structures.
+
+For example, the dataset says that Ibuprofen and Paracetamol could
+interact with one another because they are both anti-inflammatory drugs
+(NSAIDs).
+
+Examples of variables in this dataset include:
+
+-   Drug A Structure (Chemical Compound)
+
+-   Drug B Structure (Chemical Compound)
+
+-   Drug A and B Activity (Yes/No)
+
+This is a great dataset to practice your data visualization skills. Try
+creating a graph that shows the interactions between different drugs.
+
+The dataset can be downloaded from here: Alcohol & Drug Relation Dataset
+
+<https://www.kaggle.com/jessicali9530/kuc-hackathon-winter-2018>
+
+## 6. Breast Cancer Wisconsin (Intermediate)
+
+The Breast Cancer Wisconsin dataset is a great challenge for those who
+are more experienced in data science. This dataset contains information
+about breast cancer patients in the state of Wisconsin.
+
+The goal of the dataset is to predict whether or not a patient has
+cancer based on their characteristics.
+
+For example, you can see from the dataset that patients with a tumor
+size of less than 0.50 cm have a 98% chance of survival, while those
+with a tumor size greater than or equal to 0.80 cm have only a 15%
+chance of survival.
+
+Examples of variables in this dataset are:
+
+-   Tumor Size
+
+-   Grade of Tumor
+
+-   Lymph Nodes Involved
+
+There are a few tutorials on how to approach this dataset. If you’re
+looking for a challenge, try predicting the survival rates for different
+tumor sizes.
+
+The dataset can be downloaded from here: Breast Cancer Wisconsin Data
+
+<https://www.kaggle.com/uciml/breast-cancer-wisconsin-data>
+
+## 7. Pima Indians Diabetes (Intermediate)
+
+This dataset is all about predicting diabetes. This competition has over
+150,000 examples and you need to predict whether or not the patient will
+develop diabetes (binary classification).
+
+The variables are pretty simple because there’s only one feature::
+
+-   Diabetes
+
+The goal of this challenge is to see if you can predict whether or not a
+patient will develop diabetes within five years. This is a great way to
+practice your skills with binary classification problems.
+
+The dataset can be downloaded from here: Pima Indians Dataset
+
+<https://www.kaggle.com/uciml/pima-indians-diabetes-database>
+
+## 8. Amazon Reviews (Intermediate)
+
+The Amazon Reviews dataset is a great dataset to practice text
+analytics. It contains reviews of products on Amazon.com.
+
+This dataset is interesting because it has a mixture of positive and
+negative reviews. The goal of the dataset is to predict whether the
+review is positive or negative.
+
+Examples of the variables are:
+
+-   Review Text (a string)
+
+There are plenty of tutorials on how to approach this dataset. If you’re
+looking for a challenge, try predicting sentiment analysis and then
+building your own model based off that.
+
+The dataset can be downloaded from here: Amazon Reviews Dataset
+
+<https://www.kaggle.com/bittlingmayer/amazonreviews>
+
+## 9. MNIST Handwritten Digits (Advanced)
+
+The MNIST dataset is a toy set of handwritten digits. It consists of
+images of size 28x28 pixels and has 60,000 training examples and 10000
+test cases.
+
+The goal of this dataset is to correctly classify all the digits in the
+training set and also in the test set.
+
+For this type of problem you will usually use Convolutional Neural
+Networks (CNNs).
+
+There are a lot of tutorials on how to approach this type of problem, so
+I suggest you start with the basics and then move on to more advanced
+methods.
+
+The dataset can be downloaded from here: MNIST Handwritten Digits
+
+<https://www.kaggle.com/c/digit-recognizer>
+
+## 10. CIFAR-100 (Advanced)
+
+The CIFAR-100 dataset is a great dataset to practice your machine
+learning skills. This dataset contains 100 images of objects in six
+categories: airplane, car, cat, deer, dog, and ship.
+
+Each image is 32x32 pixels and has three color channels (red, green,
+blue).
+
+The goal of the data is to predict which of the six categories each
+image belongs in.
+
+Examples of variables in this dataset are::
+
+-   Pixels
+
+-   Red channel
+
+-   Green channel
+
+-   Blue channel
+
+There many tutorials on how to approach this challenge. If you’re
+looking for a challenge, try predicting the labels for images that have
+been distorted or transformed in some way.
+
+The dataset can be downloaded from here: CIFAR-100
+
+<https://www.kaggle.com/fedesoriano/cifar100>
+
+## Try Using Kaggle Today
+
+Kaggle is a great resource for data science practice problems. The 10
+datasets listed in this article are perfect for honing your skills. If
+you’re just starting out, try working through some of the easier
+datasets first.
+
+As you progress, move on to harder ones. With enough practice, you’ll be
+able to tackle any problem that comes your way.

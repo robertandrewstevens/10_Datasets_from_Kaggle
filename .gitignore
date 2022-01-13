@@ -4,6 +4,15 @@
 
 # Session Data files
 .RData
+*.txt
+*.csv
+*.zip
+*.p
+*.json
+*.RDS
+*.pdf
+*.rtf
+*.gz
 
 # User-specific files
 .Ruserdata
