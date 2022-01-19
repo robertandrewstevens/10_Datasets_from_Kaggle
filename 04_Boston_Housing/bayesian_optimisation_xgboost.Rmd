@@ -1,0 +1,410 @@
+---
+title: "Using bayesian optimisation to tune a XGBOOST model in R"
+author: "Robert A. Stevens"
+date: "`r Sys.Date()`"
+output: github_document
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(
+  comment = NA, 
+  echo = TRUE, 
+  warning = FALSE, 
+  message = FALSE, 
+  fig.width = 11, 
+  fig.height = 8.5, 
+  error = TRUE
+)
+```
+
+https://rtichoke.netlify.app/post/bayesian_optimisation_xgboost/
+
+*ML series (Post #1)*
+
+Riddhiman, Jan 8, 2022
+
+My first post in 2022! A very happy new year to anyone reading this.
+
+I was looking for a simple and effective way to tune `xgboost` models in R and came across this package called `ParBayesianOptimization`:
+
+https://github.com/AnotherSamWilson/ParBayesianOptimization
+
+Here’s a quick tutorial on how to use it to tune a `xgboost` model.
+
+```
+# Pacman is a package management tool 
+install.packages("pacman")
+```
+
+```{r}
+library(pacman)
+
+# p_load automatically installs packages if needed
+p_load(xgboost, ParBayesianOptimization, mlbench, dplyr, skimr, recipes, resample)
+```
+
+## Data prep
+
+Load up some data
+
+```{r}
+data("BostonHousing2")
+```
+
+Data summary
+
+```{r}
+skim(BostonHousing2)
+```
+
+Looks like there is are two factor variables. We’ll need to convert them into numeric variables before we proceed. I’ll use the `recipes` package to one-hot encode them.
+
+Predicting median house prices:
+
+```{r}
+rec <- recipe(cmedv ~ ., data = BostonHousing2) %>%
+  
+  # Collapse categories where population is < 3%
+  step_other(town, chas, threshold = 0.03, other = "Other") %>% 
+  
+  # Create dummy variables for all factor variables 
+  step_dummy(all_nominal_predictors())
+```
+
+Train the recipe on the data set:
+
+```{r}
+prep <- prep(rec, training = BostonHousing2)
+```
+
+Create the final model matrix:
+
+```{r}
+model_df <- bake(prep, new_data = BostonHousing2)
+```
+
+All levels have been one hot encoded and separate columns have been appended to the model matrix
+
+```{r}
+colnames(model_df)
+```
+
+Next, we can use the `resample` package to create test/train splits.
+
+```{r}
+splits <- rsample::initial_split(model_df, prop = 0.7)
+```
+
+Training set
+
+```{r}
+train_df <- rsample::training(splits)
+dim(train_df)
+```
+
+Test set
+
+```{r}
+test_df <- rsample::testing(splits)
+dim(test_df)
+```
+
+## Finding optimal parameters
+
+Now we can start to run some optimizations using the `ParBayesianOptimization` package.
+
+The xgboost interface accepts matrices.
+
+Remove the target variable:
+
+```{r}
+X <- train_df %>%
+  select(!medv, !cmedv) %>%
+  as.matrix()
+```
+
+Get the target variable:
+
+```{r}
+y <- train_df %>%
+  pull(cmedv)
+```
+
+Cross validation folds:
+
+```{r}
+folds <- list(
+  fold1 = as.integer(seq(1, nrow(X), by = 5)),
+  fold2 = as.integer(seq(2, nrow(X), by = 5))
+)
+```
+
+We’ll need an objective function which can be fed to the optimizer. We’ll use the value of the evaluation metric from `xgb.cv()` as the value that needs to be optimized.
+
+Function must take the hyper-parameters as inputs:
+
+```{r}
+obj_func <- function(eta, max_depth, min_child_weight, subsample, lambda, alpha) {
+  
+  param <- list(
+  
+    # Hyperparameters 
+    eta = eta,
+    max_depth = max_depth,
+    min_child_weight = min_child_weight,
+    subsample = subsample,
+    lambda = lambda,
+    alpha = alpha,
+    
+    # Tree model 
+    booster = "gbtree",
+    
+    # Regression problem 
+    objective = "reg:squarederror",
+    
+    # Use the Mean Absolute Percentage Error
+    eval_metric = "mape"
+  )
+  
+  xgbcv <- xgb.cv(
+    params = param,
+    data = X,
+    label = y,
+    nround = 50,
+    folds = folds,
+    prediction = TRUE,
+    early_stopping_rounds = 5,
+    verbose = 0,
+    maximize = FALSE
+  )
+  
+  lst <- list(
+    
+    # First argument must be named as "Score"
+    # Function finds maxima so inverting the output
+    Score = -min(xgbcv$evaluation_log$test_mape_mean),
+    
+    # Get number of trees for the best performing model
+    nrounds = xgbcv$best_iteration
+  )
+  
+  return(lst)
+}
+```
+
+Once we have the objective function, we’ll need to define some bounds for the optimiser to search within.
+
+```{r}
+bounds <- list(
+  eta = c(0.001, 0.2),
+  max_depth = c(1L, 10L),
+  min_child_weight = c(1, 50),
+  subsample = c(0.1, 1),
+  lambda = c(1, 10),
+  alpha = c(1, 10)
+)
+```
+
+We can now run the optimizer to find a set of optimal hyper-parameters.
+
+```{r}
+set.seed(1234)
+
+bayes_out <- bayesOpt(
+  FUN = obj_func, 
+  bounds = bounds, 
+  initPoints = length(bounds) + 2, 
+  iters.n = 3
+)
+```
+
+Show relevant columns from the summary object:
+
+```{r}
+bayes_out$scoreSummary[1:5, c(3:8, 13)]
+```
+
+Get best parameters:
+
+```{r}
+data.frame(getBestPars(bayes_out))
+```
+
+## Fitting the model
+
+We can now fit a model and check how well these parameters work.
+
+Combine best params with base params:
+
+```{r}
+opt_params <- append(
+  list(
+    booster = "gbtree", 
+    objective = "reg:squarederror", 
+    eval_metric = "mae"
+  ), 
+  getBestPars(bayes_out)
+)
+```
+
+Run cross validation:
+
+```{r}
+xgbcv <- xgb.cv(
+  params = opt_params,
+  data = X,
+  label = y,
+  nround = 100,
+  folds = folds,
+  prediction = TRUE,
+  early_stopping_rounds = 5,
+  verbose = 0,
+  maximize = FALSE
+)
+```
+
+Get optimal number of rounds:
+
+```{r}
+nrounds = xgbcv$best_iteration
+nrounds
+```
+
+Fit a xgb model:
+
+```{r}
+mdl <- xgboost(
+  data = X, 
+  label = y, 
+  params = opt_params, 
+  maximize = FALSE, 
+  early_stopping_rounds = 5, 
+  nrounds = nrounds, 
+  verbose = 0
+)
+```
+
+Evaluate performance:
+
+```{r}
+actuals <- test_df$cmedv
+
+predicted <- test_df %>%
+  select_at(mdl$feature_names) %>%
+  as.matrix %>%
+  predict(mdl, newdata = .)
+```
+
+Compute MAPE:
+
+```{r}
+mean(abs(actuals - predicted)/actuals)  # 0.008391282
+```
+
+Compare with grid search:
+
+```{r}
+grd <- expand.grid(
+  eta = seq(0.001, 0.2, length.out = 5),
+  max_depth = seq(2L, 10L, by = 1),
+  min_child_weight = seq(1, 25, length.out = 3),
+  subsample = c(0.25, 0.5, 0.75, 1),
+  lambda = c(1, 5, 10),
+  alpha = c(1, 5, 10)
+)
+
+dim(grd)
+```
+
+```{r}
+grd_out <- apply(
+  grd, 
+  1, 
+  function(par) {
+    
+    par <- append(
+      par, 
+      list(booster = "gbtree", objective = "reg:squarederror", eval_metric = "mae")
+    )
+    
+    mdl <- xgboost(
+      data = X, 
+      label = y, 
+      params = par, 
+      nrounds = 50, 
+      early_stopping_rounds = 5, 
+      maximize = FALSE, 
+      verbose = 0
+    )
+    
+    lst <- data.frame(par, score = mdl$best_score)
+    
+    return(lst)
+  }
+)
+
+grd_out <- do.call(rbind, grd_out)
+```
+
+```{r}
+best_par <- grd_out %>%
+  data.frame() %>%
+  arrange(score) %>%
+  .[1,]
+
+best_par
+```
+
+Fit final model:
+
+```{r}
+params <- as.list(best_par[-length(best_par)])
+
+xgbcv <- xgb.cv(
+  params = params,
+  data = X,
+  label = y,
+  nround = 100,
+  folds = folds,
+  prediction = TRUE,
+  early_stopping_rounds = 5,
+  verbose = 0,
+  maximize = FALSE
+)
+```
+
+```{r}
+nrounds = xgbcv$best_iteration
+nrounds
+```
+
+```{r}
+mdl <- xgboost(
+  data = X, 
+  label = y, 
+  params = params, 
+  maximize = FALSE, 
+  early_stopping_rounds = 5, 
+  nrounds = nrounds, 
+  verbose = 0
+)
+```
+
+Evaluate on test set:
+
+```{r}
+act <- test_df$medv
+
+pred <- test_df %>%
+  select_at(mdl$feature_names) %>%
+  as.matrix %>%
+  predict(mdl, newdata = .)
+```
+
+```{r}
+mean(abs(act - pred)/act)  # 0.009407723
+```
+
+While both the methods offer similar final results, the Bayesian optimizer completed its search in less than a minute where as the grid search took over seven minutes. Also, I find that I can use Bayesian optimization to search a larger parameter space more quickly than a traditional grid search.
+
+Thoughts? Comments? Helpful? Not helpful? Like to see anything else added in here? Let me know.
